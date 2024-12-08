@@ -56,7 +56,7 @@ async def create_hash(text) -> str:
 
     return str(hashed_text)
 
-async def chech_auth(request) -> bool:
+async def check_auth(request) -> bool:
     from server import database
     token = request.cookies.get('token')
     user = await database["users"].find_one({"token": token})
