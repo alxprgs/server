@@ -18,7 +18,7 @@ except Exception as e:
 
 app = FastAPI(
     title="ASFES | SERVER API",
-    version="Dev 2.6 | Build 09.12.2024",
+    version="Dev 3.0 | Build 09.12.2024",
     contact={
         "name": "Александр",
         "email": "aleksahalaya@yandex.ru"},

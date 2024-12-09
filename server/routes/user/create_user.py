@@ -1,42 +1,38 @@
-from server import app
-from functions import create_hash
+from server import app, database
+from functions import create_hash, generate_random_word, create_random
 from fastapi.responses import JSONResponse
 from secrets import token_urlsafe
 
 @app.get("/user/create_user")
-async def create_user(login, password, mail):
-    from server import database
+async def create_user(login: str, password: str, mail: str):
     db = database["users"]
     try:
-        user = await db.find_one({"login": login})
-        if user:
-            return JSONResponse({"status": False, "message": f"Пользаватель с таким логином уже зарегитрирован."})
-        else:
-            try:
-                user = await db.find_one({"mail": mail})
-                if user:
-                    return JSONResponse({"status": False, "message": f"Пользаватель с такой почтой уже зарегитрирован."})
-                else:
-                    token = token_urlsafe(256)
-                    password = await create_hash(text=password)
-                    try:
-                        await db.insert_one({
-                            "login": login,
-                            "mail": mail,
-                            "password": password,
-                            "token": token,
-                            "permissions": {
-                                "user": True,
-                                "administrator": False,
-                                "Developer": False
-                            }
-                        })
-                        response = JSONResponse({"status": True, "message": f"Успешная регистрация."})
-                        response.set_cookie(key="token", value=token)
-                        return response
-                    except Exception as e:
-                        return JSONResponse({"status": False, "message": f"error: {e}"})
-            except Exception as e:
-                return JSONResponse({"status": False, "message": f"error: {e}"})
+        if await db.find_one({"login": login}):
+            return JSONResponse({"status": False, "message": "Пользователь с таким логином уже зарегистрирован."})
+
+        if await db.find_one({"mail": mail}):
+            return JSONResponse({"status": False, "message": "Пользователь с такой почтой уже зарегистрирован."})
+
+        hashed_password = await create_hash(text=password)
+        tokens = {await generate_random_word(15): token_urlsafe(64) for _ in range(5)}
+
+        await db.insert_one({
+            "login": login,
+            "mail": mail,
+            "password": hashed_password,
+            "tokens": tokens,
+            "permissions": {
+                "user": True,
+                "administrator": False,
+                "Developer": False
+            }
+        })
+
+        response = JSONResponse({"status": True, "message": "Успешная регистрация."})
+        response.set_cookie("login", login)
+        for key, value in tokens.items():
+            response.set_cookie(key, value)
+        response = await create_random(response=response)
+        return response
     except Exception as e:
         return JSONResponse({"status": False, "message": f"error: {e}"})

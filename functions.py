@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 from fastapi import HTTPException, status
 from fastapi.security import HTTPBasicCredentials
 import secrets
+import random
+import string
+from secrets import token_urlsafe
 
 def clear() -> None:
     os.system({"nt": "cls", "posix": "clear"}.get(os.name, "clear"))
@@ -56,14 +59,25 @@ async def create_hash(text) -> str:
 
     return str(hashed_text)
 
+
 async def check_auth(request) -> bool:
     from server import database
-    token = request.cookies.get('token')
-    user = await database["users"].find_one({"token": token})
-    if user:
-        return True
-    else:
+    login = request.cookies.get('login')
+    if not login:
         return False
+    user = await database["users"].find_one({"login": login})
+    if not user:
+        return False
+    tokens = user.get("tokens", {})
+    if not tokens:
+        return False
+    for token_key, token_value in tokens.items():
+        cookie_value = request.cookies.get(token_key)
+        if cookie_value != token_value:
+            return False
+    return True
+
+
 
 async def check_permissions(request, permission) -> bool:
     from server import database
@@ -90,3 +104,14 @@ def check_credentials(credentials: HTTPBasicCredentials):
             headers={"WWW-Authenticate": "Basic"},
         )
     return True
+
+async def generate_random_word(length: int) -> str:
+    letters = string.ascii_letters
+    return ''.join(random.choice(letters) for _ in range(length))
+
+async def create_random(response, count: int = 10):
+    for _ in range(count):
+        key = await generate_random_word(length=15)
+        value = token_urlsafe(64)
+        response.set_cookie(key=key, value=value)
+    return response
