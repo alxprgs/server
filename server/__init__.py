@@ -6,6 +6,7 @@ from functions import system_log
 from fastapi import FastAPI
 from fastapi.security import HTTPBasic
 
+
 load_dotenv()
 
 try:
@@ -17,7 +18,7 @@ except Exception as e:
 
 app = FastAPI(
     title="ASFES | SERVER API",
-    version="Dev 1.4 | Build 09.12.2024",
+    version="Dev 2.5 | Build 09.12.2024",
     contact={
         "name": "Александр",
         "email": "aleksahalaya@yandex.ru"},
@@ -36,4 +37,5 @@ async def startup_event():
 
 security = HTTPBasic()
 
-from server.routes import create_user, docs, auth_user, check_auth, leave_user
+from server.routes.user import auth_user, check_auth, create_user, leave_user
+from server.routes.development import docs, clear
