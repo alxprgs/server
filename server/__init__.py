@@ -18,7 +18,7 @@ except Exception as e:
 
 app = FastAPI(
     title="ASFES | SERVER API",
-    version="Dev 2.5 | Build 09.12.2024",
+    version="Dev 2.6 | Build 09.12.2024",
     contact={
         "name": "Александр",
         "email": "aleksahalaya@yandex.ru"},
@@ -37,5 +37,5 @@ async def startup_event():
 
 security = HTTPBasic()
 
-from server.routes.user import auth_user, check_auth, create_user, leave_user
+from server.routes.user import auth_user, check_auth, create_user, leave_user, set_permission
 from server.routes.development import docs, clear

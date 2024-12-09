@@ -67,7 +67,7 @@ async def check_auth(request) -> bool:
 
 async def check_permissions(request, permission) -> bool:
     from server import database
-    auth = await chech_auth(request=request)
+    auth = await check_auth(request=request)
     if auth:
         token = request.cookies.get('token')
         user = await database["users"].find_one({"token": token})
