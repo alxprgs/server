@@ -11,3 +11,4 @@ if __name__ == "__main__":
         print(f"error: {e}")
     finally:
         client.close()
+        print("Connection close.")

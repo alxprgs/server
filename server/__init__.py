@@ -13,11 +13,11 @@ try:
     database = client["ASFES"]
 except Exception as e:
     print(f"Connection error: {e}")
-    sys.exit(1)
+    sys.exit(0)
 
 app = FastAPI(
     title="ASFES | SERVER API",
-    version="Dev 1.3 | Build 09.12.2024",
+    version="Dev 1.4 | Build 09.12.2024",
     contact={
         "name": "Александр",
         "email": "aleksahalaya@yandex.ru"},
@@ -36,4 +36,4 @@ async def startup_event():
 
 security = HTTPBasic()
 
-from server.routes import create_user, docs, auth_user, check_auth
+from server.routes import create_user, docs, auth_user, check_auth, leave_user
