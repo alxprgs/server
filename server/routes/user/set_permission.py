@@ -12,8 +12,8 @@ async def set_permissions(request: Request, permission: str, permission_status: 
                 {"login": login},
                 {"$set": {f"permissions.{permission}": permission_status}}
             )
-            return {"status": True, "message": "Permissions updated successfully"}
+            return JSONResponse({"status": True, "message": "Permissions updated successfully"}, status_code=200)
         except Exception as e:
-            return JSONResponse({"status": False, "message": f"error: {e}"})
+            return JSONResponse({"status": False, "message": f"error: {e}"}, status_code=500)
     else:
-        return JSONResponse({"status": False, "message": "Insufficient permissions"})
+        return JSONResponse({"status": False, "message": "Insufficient permissions"}, status_code=400)

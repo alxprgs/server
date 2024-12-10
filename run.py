@@ -1,7 +1,6 @@
 import uvicorn
 from functions import clear
-from server import app, client
-from dotenv import load_dotenv
+from server import client
 
 if __name__ == "__main__":
     try:
