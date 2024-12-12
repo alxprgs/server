@@ -1,5 +1,6 @@
 from server import app, database
 from functions import check_permissions
+
 from fastapi import Request
 from fastapi.responses import JSONResponse
 

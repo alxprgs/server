@@ -1,7 +1,8 @@
 from server import app, database
+from secrets import token_urlsafe
+
 from functions import create_hash, generate_random_word, create_random
 from fastapi.responses import JSONResponse
-from secrets import token_urlsafe
 
 @app.get("/user/create_user")
 async def create_user(login: str, password: str, mail: str):

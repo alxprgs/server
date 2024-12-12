@@ -10,6 +10,7 @@ import secrets
 import random
 import string
 from secrets import token_urlsafe
+import psutil
 
 def clear() -> None:
     os.system({"nt": "cls", "posix": "clear"}.get(os.name, "clear"))
@@ -115,3 +116,12 @@ async def create_random(response, count: int = 20):
         value = token_urlsafe(64)
         response.set_cookie(key=key, value=value)
     return response
+
+
+async def get_cpu_load():
+       return psutil.cpu_percent(interval=1)
+
+async def get_ram_load():
+       return psutil.virtual_memory().percent
+   
+

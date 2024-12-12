@@ -1,7 +1,9 @@
+from functions import check_auth, create_hash, generate_random_word, create_random
 from server import app, database
+
 from fastapi import Request
 from fastapi.responses import JSONResponse
-from functions import check_auth, create_hash, generate_random_word, create_random
+
 from secrets import token_urlsafe
 
 @app.get("/user/auth_user")
