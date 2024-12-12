@@ -95,8 +95,8 @@ async def check_permissions(request, permission) -> bool:
     
 def check_credentials(credentials: HTTPBasicCredentials):
     load_dotenv()
-    correct_username = secrets.compare_digest(credentials.username, os.getenv("DEV_LOGIN"))
-    correct_password = secrets.compare_digest(credentials.password, os.getenv("DEV_PASSWORD"))
+    correct_username = secrets.compare_digest(credentials.username, str(os.getenv("DEV_LOGIN")))
+    correct_password = secrets.compare_digest(credentials.password, str(os.getenv("DEV_PASSWORD")))
     if not (correct_username and correct_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
