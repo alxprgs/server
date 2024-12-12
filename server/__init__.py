@@ -10,9 +10,9 @@ from functions import system_log
 from fastapi import FastAPI
 from fastapi.security import HTTPBasic
 
-LOG_FORMAT = "%(log_color)s%(levelname)s:%(reset)s     %(message)s"
+log_format = "%(log_color)s%(levelname)s:%(reset)s     %(message)s"
 handler = colorlog.StreamHandler()
-handler.setFormatter(colorlog.ColoredFormatter(LOG_FORMAT))
+handler.setFormatter(colorlog.ColoredFormatter(log_format))
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
@@ -27,7 +27,7 @@ except Exception as e:
 
 app = FastAPI(
     title="ASFES | SERVER API",
-    version="Dev 5.0.0 | Build 13.12.2024",
+    version="Dev 5.0.1 | Build 13.12.2024",
     contact={
         "name": "Александр",
         "email": "aleksahalaya@yandex.ru"},
