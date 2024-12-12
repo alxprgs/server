@@ -9,6 +9,7 @@ attrs==24.2.0
 beautifulsoup4==4.12.3
 click==8.1.7
 colorama==0.4.6
+colorlog==6.9.0
 dnspython==2.7.0
 drymail==0.0.6
 email_validator==2.2.0
@@ -16,10 +17,14 @@ fastapi==0.115.5
 frozenlist==1.5.0
 h11==0.14.0
 idna==3.10
+loguru==0.7.3
 mistune==3.0.2
 motor==3.6.0
 multidict==6.1.0
+numpy==2.2.0
+opencv-python==4.10.0.84
 propcache==0.2.1
+psutil==6.1.0
 pydantic==2.10.3
 pydantic_core==2.27.1
 pymongo==4.9.2
@@ -30,4 +35,5 @@ soupsieve==2.6
 starlette==0.41.3
 typing_extensions==4.12.2
 uvicorn==0.32.0
+win32_setctime==1.2.0
 yarl==1.18.3

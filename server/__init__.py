@@ -9,6 +9,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from functions import system_log
 from fastapi import FastAPI
 from fastapi.security import HTTPBasic
+from fastapi.staticfiles import StaticFiles
 
 log_format = "%(log_color)s%(levelname)s:%(reset)s     %(message)s"
 handler = colorlog.StreamHandler()
@@ -16,9 +17,9 @@ handler.setFormatter(colorlog.ColoredFormatter(log_format))
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
-load_dotenv()
 
 try:
+    load_dotenv()
     client = AsyncIOMotorClient(os.getenv("MONGO_URL"))
     database = client["ASFES"]
 except Exception as e:
@@ -27,7 +28,7 @@ except Exception as e:
 
 app = FastAPI(
     title="ASFES | SERVER API",
-    version="Dev 5.0.1 | Build 13.12.2024",
+    version="Dev 5.1.0 | Build 13.12.2024",
     contact={
         "name": "Александр",
         "email": "aleksahalaya@yandex.ru"},
@@ -35,6 +36,7 @@ app = FastAPI(
     redoc_url=None,
     openapi_url=None
 )
+app.mount("/static", StaticFiles(directory="server/static"))
 
 @app.on_event("startup")
 async def startup_event():
