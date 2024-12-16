@@ -1,6 +1,5 @@
-from server import app
-from functions import check_permissions
-
+from server import app, eth_mode
+from functions import DatabaseOperations
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
@@ -15,7 +14,9 @@ load_dotenv()
 
 @app.get("/smm/send_mail")
 async def send_mail(request: Request, mail: str, text: str, title: str):
-    permission = await check_permissions(request=request, permission="administrator")
+    if eth_mode == False:
+        return JSONResponse({"status": False, "message": "Отсутсвует доступ к базе данных. Взаимодействие невозможно."}, status_code=523)
+    permission = await DatabaseOperations.check_permissions(request=request, permission="administrator")
 
     if not permission:
         return JSONResponse({"status": False, "message": "Отказано в доступе."}, status_code=403)

@@ -1,4 +1,4 @@
-from server import app
+from server import app, eth_mode
 
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse

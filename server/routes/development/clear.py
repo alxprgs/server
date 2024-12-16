@@ -1,10 +1,10 @@
 from server import app
-from functions import clear
+from functions import SystemUtils
 
 @app.get("/dev/clear")
 async def clear_cmd():
     try:
-        clear()
+        SystemUtils.clear()
         return True
     except Exception as e:
         return e
