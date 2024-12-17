@@ -6,6 +6,9 @@ import torch
 from io import BytesIO
 from server import app, model
 
+if torch.cuda.is_available():
+    model.cuda()
+
 @app.post("/processing/find_Fire")
 async def find_Fire(file: UploadFile = File(...), mode: int = 1):
     if mode not in [1, 2]:
@@ -30,6 +33,7 @@ async def find_Fire(file: UploadFile = File(...), mode: int = 1):
         sector_width = w // 9
 
         output_image = image.copy()
+
         for i in range(1, 9):
             cv2.line(output_image, (0, i * sector_height), (w, i * sector_height), (0, 255, 0), 2)
             cv2.line(output_image, (i * sector_width, 0), (i * sector_width, h), (0, 255, 0), 2)
@@ -49,7 +53,7 @@ async def find_Fire(file: UploadFile = File(...), mode: int = 1):
 
         detected_lights = []
 
-        if hasattr(results, 'xyxy') and len(results.xyxy) > 0:
+        if hasattr(results, 'xyxy') and len(results.xyxy[0]) > 0:
             for *box, conf in results.xyxy[0]:
                 x1, y1, x2, y2 = map(int, box)
                 detected_lights.append({

@@ -10,4 +10,4 @@ if __name__ == "__main__":
         logging.critical(f"error: {e}")
     finally:
         client.close()
-        logging.info("Connection close.")
+        logging.info("Connection to database close.")

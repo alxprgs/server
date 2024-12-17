@@ -37,7 +37,7 @@ if not eth_mode:
 
 app = FastAPI(
     title=app_title,
-    version="Dev 6.0.0 | Build 16.12.2024",
+    version="Dev 6.0.1 | Build 18.12.2024",
     docs_url=None,
     redoc_url=None,
     openapi_url=None
