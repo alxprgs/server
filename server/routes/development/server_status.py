@@ -3,7 +3,7 @@ from functions import SystemMetrics
 
 from fastapi.responses import JSONResponse
 
-@app.get("/dev/server_status")
+@app.get("/dev/server_status", tags=["development"])
 async def server_status():
     try:
         response = JSONResponse({

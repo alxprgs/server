@@ -2,12 +2,19 @@ from server import app, database, eth_mode
 from secrets import token_urlsafe
 
 from functions import RandomUtils, HashUtils
+from fastapi import HTTPException
 from fastapi.responses import JSONResponse
+from fastapi import Body
 
-@app.get("/user/create_user")
-async def create_user(login: str, password: str, mail: str):
-    if eth_mode == False:
-        return JSONResponse({"status": False, "message": "Отсутсвует доступ к базе данных. Взаимодействие невозможно."}, status_code=523)
+@app.post("/user/create_user", tags=["users"])
+async def create_user(
+    login: str = Body(...), 
+    password: str = Body(...), 
+    mail: str = Body(...)
+):
+    if not eth_mode:
+        return JSONResponse({"status": False, "message": "Отсутствует доступ к базе данных. Взаимодействие невозможно."}, status_code=523)
+
     db = database["users"]
     try:
         if await db.find_one({"login": login}):
@@ -38,4 +45,4 @@ async def create_user(login: str, password: str, mail: str):
         response = await RandomUtils.create_random(response=response)
         return response
     except Exception as e:
-        return JSONResponse({"status": False, "message": f"error: {e}"}, status_code=500)
+        raise HTTPException(status_code=500, detail=f"error: {e}")

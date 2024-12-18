@@ -2,6 +2,7 @@ from server import app, eth_mode
 from functions import DatabaseOperations
 from fastapi import Request
 from fastapi.responses import JSONResponse
+from fastapi import HTTPException
 
 from dotenv import load_dotenv
 import os
@@ -12,14 +13,15 @@ from email.mime.text import MIMEText
 
 load_dotenv()
 
-@app.get("/smm/send_mail")
+@app.post("/smm/send_mail", tags=["smm"])
 async def send_mail(request: Request, mail: str, text: str, title: str):
-    if eth_mode == False:
+    if not eth_mode:
         return JSONResponse({"status": False, "message": "Отсутсвует доступ к базе данных. Взаимодействие невозможно."}, status_code=523)
+    
     permission = await DatabaseOperations.check_permissions(request=request, permission="administrator")
 
     if not permission:
-        return JSONResponse({"status": False, "message": "Отказано в доступе."}, status_code=403)
+        raise HTTPException(status_code=403, detail="Отказано в доступе.")
 
     results = []
     try:

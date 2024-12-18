@@ -3,7 +3,7 @@ from server import app, eth_mode
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 
-@app.get("/user/leave_user")
+@app.post("/user/leave_user", tags=["users"])
 async def leave_user(request: Request, response: Response):
     cookies = request.cookies
     response = JSONResponse({"status": True, "message": "Выход с аккаунта."}, status_code=200)

@@ -9,7 +9,7 @@ from server import app, model
 if torch.cuda.is_available():
     model.cuda()
 
-@app.post("/processing/find_Fire")
+@app.post("/processing/find_Fire", tags=["processing"])
 async def find_Fire(file: UploadFile = File(...), mode: int = 1):
     if mode not in [1, 2]:
         return JSONResponse(content={"status": False, "message": "Неверный тип ответа. (1/2)"}, status_code=400)
