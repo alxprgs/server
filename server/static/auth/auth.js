@@ -21,8 +21,10 @@ document.getElementById('authForm').addEventListener('submit', async function (e
 
         const result = await response.json();
         displayMessage(result);
+        console.log(result)
+        console.log(result.success)
 
-        if (result.success) {
+        if (result.status) {
             setTimeout(() => {
                 window.location.href = '/';
             }, 3000);

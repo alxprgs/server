@@ -2,7 +2,6 @@ import os
 import logging
 import colorlog
 import torch
-import asyncio
 
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -58,7 +57,7 @@ if not eth_mode:
 
 app = FastAPI(
     title=app_title,
-    version="Dev 7.0.0 | Build 19.12.2024",
+    version="Dev 7.0.1 | Build 19.12.2024",
     docs_url=None,
     redoc_url=None,
     openapi_url=None,
