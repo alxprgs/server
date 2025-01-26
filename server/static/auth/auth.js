@@ -4,6 +4,28 @@ document.getElementById('authForm').addEventListener('submit', async function (e
     const login = document.getElementById('login').value;
     const password = document.getElementById('password').value;
 
+    const result = await sendAuthRequest({ login, password });
+    displayMessage(result);
+
+    if (result.status) {
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 3000);
+    }
+});
+
+document.getElementById('registerForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const login = document.getElementById('regLogin').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('regPassword').value;
+
+    const result = await sendRegisterRequest({ login, password, mail: email });
+    displayMessage(result);
+});
+
+async function sendAuthRequest({ login, password }) {
     try {
         const response = await fetch('/user/auth_user', {
             method: 'POST',
@@ -14,52 +36,32 @@ document.getElementById('authForm').addEventListener('submit', async function (e
         });
 
         if (!response.ok) {
-            const errorResult = await response.json();
-            displayMessage(errorResult);
-            return;
+            return await response.json();
         }
 
-        const result = await response.json();
-        displayMessage(result);
-        console.log(result)
-        console.log(result.success)
-
-        if (result.status) {
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 3000);
-        }
+        return await response.json();
     } catch (error) {
         console.error('Ошибка при выполнении запроса:', error);
-        displayMessage({ success: false, message: 'Произошла ошибка при связи с сервером.' });
+        return { success: false, message: 'Произошла ошибка при связи с сервером.' };
     }
-});
+}
 
+async function sendRegisterRequest({ login, password, mail }) {
+    try {
+        const response = await fetch('/user/create_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ login, password, mail })
+        });
 
-document.getElementById('registerForm').addEventListener('submit', async function (event) {
-    event.preventDefault();
-
-    const login = document.getElementById('regLogin').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('regPassword').value;
-
-    const response = await fetch('/user/create_user', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            login: login,
-            password: password,
-            mail: email
-        })
-    });
-
-    const result = await response.json();
-
-    displayMessage(result);
-});
-
+        return await response.json();
+    } catch (error) {
+        console.error('Ошибка при выполнении запроса:', error);
+        return { success: false, message: 'Произошла ошибка при связи с сервером.' };
+    }
+}
 
 document.getElementById('showRegister').addEventListener('click', function () {
     document.querySelector('h1:nth-of-type(1)').style.display = 'none';

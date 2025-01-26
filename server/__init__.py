@@ -6,7 +6,6 @@ import torch
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from functions import DatabaseOperations
 from fastapi import FastAPI
 from fastapi.security import HTTPBasic
 from fastapi.staticfiles import StaticFiles
@@ -57,7 +56,7 @@ if not eth_mode:
 
 app = FastAPI(
     title=app_title,
-    version="Dev 7.0.1 | Build 19.12.2024",
+    version="Dev 8.0.0 | Build 20.01.2025",
     docs_url=None,
     redoc_url=None,
     openapi_url=None,
@@ -65,26 +64,20 @@ app = FastAPI(
 )
 
 app.mount("/html/static", StaticFiles(directory="server/static"))
-model = torch.hub.load('ultralytics/yolov5', 'custom', path='server/models/best.pt')
+model = None
+#try:
+#    model = torch.hub.load('ultralytics/yolov5', 'custom', path='server/models/best.pt', force_reload=True)
+#except Exception as e:
+#    logger.error(f"Failed to load YOLOv5 model: {str(e)}")
 templates = Jinja2Templates(directory="server/static")
-
-@app.on_event("startup")
-async def startup_event():
-    global eth_mode
-    try:
-        await DatabaseOperations.system_log(t="Successful connection to database")
-        eth_mode = True
-        logger.info("Successful connection to database.")
-    except Exception as e:
-        eth_mode = False
-        logger.error(f"Connection error to database: {str(e)}")
 
 
 security = HTTPBasic()
 
-from server.routes.user import auth_user, check_auth, create_user, leave_user, set_permission
+from server.routes.user import auth_user, check_auth, create_user, leave_user, set_permission, del_user
 from server.routes.development import docs, clear, server_status
 from server.routes.smm import send_mail
 from server.routes.device import add_device
-from server.routes.processing import find_Fire
+from server.routes.processing import find_fire, find_firev2
 from server.routes.html import auth, root
+from server.routes.redirect import yandex

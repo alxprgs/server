@@ -9,11 +9,7 @@ import os
 from dotenv import load_dotenv
 
 @app.post("/device/add_device", tags=["device"])
-async def add_device(
-    device_ip: str = Body(...), 
-    acess_code: int = Body(...), 
-    mac_adress: str = Body(...)
-):
+async def add_device(device_ip: str, acess_code: int, mac_adress: str):
     if not eth_mode:
         return JSONResponse({"status": False, "message": "Отсутствует доступ к базе данных. Взаимодействие невозможно."}, status_code=523)
 

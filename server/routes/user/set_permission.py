@@ -1,14 +1,11 @@
-from server import app, database, eth_mode
+from server import app, database
 from functions import DatabaseOperations
 
 from fastapi import Request
 from fastapi.responses import JSONResponse
-from fastapi import HTTPException
 
 @app.post("/user/set_permissions", tags=["users"])
 async def set_permissions(request: Request, permission: str, permission_status: bool, login: str):
-    if not eth_mode:
-        return JSONResponse({"status": False, "message": "Отсутствует доступ к базе данных. Взаимодействие невозможно."}, status_code=523)
     
     has_permission = await DatabaseOperations.check_permissions(request=request, permission="administrator")
     

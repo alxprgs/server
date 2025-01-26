@@ -1,21 +1,13 @@
 from functions import DatabaseOperations, HashUtils, RandomUtils
-from server import app, database, eth_mode
+from server import app, database
 
 from fastapi import Request
 from fastapi.responses import JSONResponse
-from fastapi import Body
 
 from secrets import token_urlsafe
 
 @app.post("/user/auth_user", tags=["users"])
-async def auth_user(
-        request: Request,
-        login: str = Body(...), 
-        password: str = Body(...), 
-):
-    if not eth_mode:
-        return JSONResponse({"status": False, "message": "Отсутствует доступ к базе данных. Взаимодействие невозможно."}, status_code=503)
-    
+async def auth_user(request: Request, login: str , password: str,):
     auth = await DatabaseOperations.check_auth(request=request)
     if auth:
         return JSONResponse({"status": False, "message": "Вы уже авторизированы."}, status_code=400)

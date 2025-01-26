@@ -15,6 +15,33 @@ import secrets
 from secrets import token_urlsafe
 import aiofiles
 
+load_dotenv()
+
+class Setup:
+    async def root_user():
+        from server import database as db
+        db = db["users"]
+        password = await HashUtils.create_hash(str(os.getenv("DEV_PASSWORD")))
+        login = str(os.getenv("DEV_LOGIN"))
+        tokens = {await RandomUtils.generate_random_word(15): token_urlsafe(64) for _ in range(5)}
+        user = await db.find_one({"login": os.getenv("DEV_LOGIN")})
+        if user:
+            pass
+        else:
+            await db.insert_one({
+                "_id": await DatabaseOperations.get_next_id(db),
+                "login": login,
+                "mail": None,
+                "password": password,
+                "tokens": tokens,
+                "permissions": {
+                    "user": True,
+                    "administrator": True,
+                    "Developer": True
+                },
+                "auth_type": "system"
+            })
+
 class SystemUtils:
     @staticmethod
     def clear() -> None:
@@ -36,7 +63,7 @@ class DatabaseOperations:
             "timestamp": formatted_timestamp
         })
 
-    async def visit( request) -> None:
+    async def visit(request) -> None:
         client_ip = request.headers.get("X-Forwarded-For", request.client.host)
         from server import database
         await database["visits"].insert_one({
@@ -47,7 +74,7 @@ class DatabaseOperations:
             "ip": client_ip,
         })
 
-    async def check_auth( request) -> bool:
+    async def check_auth(request) -> bool:
         from server import database
         login = request.cookies.get('login')
         if not login:
@@ -81,7 +108,6 @@ class DatabaseOperations:
 class AuthUtils:
     @staticmethod
     def check_credentials(credentials: HTTPBasicCredentials):
-        load_dotenv()
         correct_username = secrets.compare_digest(credentials.username, str(os.getenv("DEV_LOGIN")))
         correct_password = secrets.compare_digest(credentials.password, str(os.getenv("DEV_PASSWORD")))
         if not (correct_username and correct_password):
@@ -172,4 +198,3 @@ class JsonOperations:
                 return None
         return current_data
    
-
