@@ -22,4 +22,31 @@
         <img src="https://mc.yandex.ru/watch/99655319" style="position:absolute; left:-9999px;" alt="" />
     </div>
 </noscript>
+
 <h1>Главная страница йоу</h1>
+<button id="logoutButton" style="position: absolute; top: 10px; right: 10px;">Выход</button>
+
+<script type="text/javascript">
+    async function logout() {
+        try {
+            const response = await fetch('/user/leave_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                window.location.href = '/';
+            } else {
+                alert(result.message || 'Ошибка при выходе.');
+            }
+        } catch (error) {
+            console.error('Ошибка при выполнении запроса:', error);
+            alert('Произошла ошибка при выходе из аккаунта.');
+        }
+    }
+
+    document.getElementById('logoutButton').addEventListener('click', logout);
+</script>

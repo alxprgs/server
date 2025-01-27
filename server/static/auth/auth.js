@@ -84,3 +84,13 @@ function displayMessage(result) {
     messageDiv.textContent = result.message;
     messageDiv.style.color = result.status ? 'green' : 'red';
 }
+
+function checkForNewCookies() {
+    let previousCookies = document.cookie;
+    setInterval(() => {
+        if (document.cookie !== previousCookies) {
+            window.location.reload();
+        }
+    }, 1000); 
+}
+checkForNewCookies();
