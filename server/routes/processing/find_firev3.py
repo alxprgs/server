@@ -10,7 +10,6 @@ from server import app
 
 load_dotenv()
 
-# Создаем папку для сохранения обработанных изображений, если она не существует
 output_folder = Path("output_images")
 output_folder.mkdir(exist_ok=True)
 

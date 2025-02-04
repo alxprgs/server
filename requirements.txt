@@ -84,7 +84,6 @@ soupsieve==2.6
 starlette==0.41.3
 supervision==0.25.1
 sympy==1.13.1
-torch==2.5.1
 torchvision==0.20.1
 tqdm==4.67.1
 typer==0.15.1
