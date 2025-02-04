@@ -36,7 +36,7 @@ httpx==0.28.1
 idna==3.10
 inference-sdk==0.35.0
 itsdangerous==2.2.0
-Jinja2==3.1.4
+Jinja2==3.1.5
 kiwisolver==1.4.7
 loguru==0.7.3
 markdown-it-py==3.0.0
