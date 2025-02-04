@@ -13,7 +13,7 @@ from email.mime.text import MIMEText
 
 load_dotenv()
 
-@app.post("/smm/send_mail", tags=["smm"])
+@app.post("/smm/send_mail", tags=["smm"], response_class=JSONResponse)
 async def send_mail(request: Request, mail: str, text: str, title: str):
     if not eth_mode:
         return JSONResponse({"status": False, "message": "Отсутсвует доступ к базе данных. Взаимодействие невозможно."}, status_code=523)

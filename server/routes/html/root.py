@@ -2,8 +2,7 @@ from server import app, templates
 from functions import DatabaseOperations
 
 from fastapi import Request
-from fastapi.responses import RedirectResponse, HTMLResponse
-
+from fastapi.responses import RedirectResponse
 @app.get("/", tags=["html"])
 async def root_html(request: Request):
     auth = await DatabaseOperations.check_auth(request=request)

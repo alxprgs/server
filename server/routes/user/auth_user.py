@@ -22,8 +22,8 @@ async def auth_user(request: Request, login: str , password: str,):
                 
                 response = JSONResponse({"status": True, "message": "Успешная авторизация."}, status_code=200)
                 for key, value in tokens.items():
-                    response.set_cookie(key, value)
-                response.set_cookie("login", login)
+                    response.set_cookie(key, value, secure=True, httponly=True)
+                response.set_cookie("login", login, secure=True, httponly=True)
                 
                 response = await RandomUtils.create_random(response=response)
                 return response

@@ -4,9 +4,11 @@ from functions import DatabaseOperations, RandomUtils
 from secrets import token_urlsafe
 from server import app, database
 import httpx
+import logging
 
+logger = logging.getLogger(__name__)
 
-@app.get("/redirect/yandex", response_class=HTMLResponse)
+@app.get("/redirect/yandex", response_class=HTMLResponse, tags=["redirect"])
 async def redirect_yandex():
     return """
     <!DOCTYPE html>
@@ -46,13 +48,13 @@ async def redirect_yandex():
     </html>
     """
 
-
-@app.post("/redirect/yandex2")
+@app.post("/redirect/yandex2", tags=["redirect"])
 async def redirect_yandex2(request: Request):
     data = await request.json()
     access_token = data.get("access_token")
 
     if not access_token:
+        logger.error("Access token не предоставлен")
         raise HTTPException(status_code=400, detail="Access token не предоставлен")
 
     headers = {
@@ -63,6 +65,7 @@ async def redirect_yandex2(request: Request):
         response = await client.get("https://login.yandex.ru/info", headers=headers)
 
         if response.status_code != 200:
+            logger.error(f"Ошибка при запросе к Yandex API: {response.status_code}, {response.json()}")
             raise HTTPException(status_code=response.status_code, detail=response.json())
 
     user_info = response.json()
@@ -72,8 +75,7 @@ async def redirect_yandex2(request: Request):
     db = database["users"]
     user = await db.find_one({"login": login})
     tokens = {await RandomUtils.generate_random_word(15): token_urlsafe(64) for _ in range(5)}
-    response = HTMLResponse(content=f"""
-        <html><head><script type="text/javascript">window.location.href = "/"; </script></head>""")
+
     if user:
         await db.update_one({"login": login}, {"$set": {"tokens": tokens}})
     else:
@@ -89,9 +91,10 @@ async def redirect_yandex2(request: Request):
             "auth_type": "yandex"
         })
 
+    response = RedirectResponse(url="/")
     for key, value in tokens.items():
-        response.set_cookie(key, value)
+        response.set_cookie(key, value, secure=True, httponly=True)
     
-    response.set_cookie("login", login)
+    response.set_cookie("login", login, secure=True, httponly=True)
     
     return response

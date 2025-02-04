@@ -33,9 +33,9 @@ async def create_user(login: str, password: str, mail: EmailStr):
         })
 
         response = JSONResponse({"status": True, "message": "Успешная регистрация."}, status_code=200)
-        response.set_cookie("login", login)
+        response.set_cookie("login", login, secure=True, httponly=True)
         for key, value in tokens.items():
-            response.set_cookie(key, value)
+            response.set_cookie(key, value, secure=True, httponly=True)
         response = await RandomUtils.create_random(response=response)
         return response
     except Exception as e:
