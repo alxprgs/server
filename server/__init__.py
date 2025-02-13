@@ -55,10 +55,6 @@ tags_metadata = [
     }
 ]
 
-app_title = "ASFES | SERVER API"
-if not eth_mode:
-    app_title = "ASFES | SERVER API (NONE DB CONNECTION)"
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global eth_mode
