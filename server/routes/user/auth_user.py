@@ -1,35 +1,38 @@
-from functions import DatabaseOperations, HashUtils, RandomUtils
-from server import app, database
+from server.core.functions.mongodb import check_auth, check_connection
+from server.core.functions.hash import verify_hash
+from server.core.functions.time import token_expiration_time
+from server.core.api.schemes import AuthUser
+from server import app, mongo, mongo_db, logger
 
-from fastapi import Request
+from fastapi import Request, status
 from fastapi.responses import JSONResponse
 
 from secrets import token_urlsafe
 
 @app.post("/user/auth_user", tags=["users"])
-async def auth_user(request: Request, login: str , password: str,):
-    auth = await DatabaseOperations.check_auth(request=request)
+async def auth_user(data: AuthUser, request: Request):
+    if await check_connection(mongo=mongo) == False:
+        return JSONResponse({"status": False, "message": "Нет подключения к базе данных, действие невозможно."}, status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
+    auth = await check_auth(request=request, database=mongo_db)
     if auth:
-        return JSONResponse({"status": False, "message": "Вы уже авторизированы."}, status_code=400)
+        return JSONResponse({"status": False, "message": "Вы уже авторизированы."}, status_code=status.HTTP_409_CONFLICT)
 
     try:
-        user = await database["users"].find_one({"login": login})
+        user = await mongo_db["users"].find_one({"login": data.login})
         if user:
-            hashed_password = await HashUtils.create_hash(text=password)
-            if hashed_password == user["password"]:
-                tokens = {await RandomUtils.generate_random_word(15): token_urlsafe(64) for _ in range(5)}
-                await database["users"].update_one({"login": login}, {"$set": {"tokens": tokens}})
+            passwordpass = verify_hash(data.password, user["password"])
+            if passwordpass == True:
+                token = token_urlsafe(96)
+                token_expiration = token_expiration_time()
+                await mongo_db["users"].update_one({"login": data.login}, {"$set": {"token": token, "token_expiration": token_expiration}})
                 
-                response = JSONResponse({"status": True, "message": "Успешная авторизация."}, status_code=200)
-                for key, value in tokens.items():
-                    response.set_cookie(key, value, secure=True, httponly=True)
-                response.set_cookie("login", login, secure=True, httponly=True)
-                
-                response = await RandomUtils.create_random(response=response)
+                response = JSONResponse({"status": True, "message": "Успешная авторизация."}, status_code=status.HTTP_200_OK)
+                response.set_cookie("token", token, secure=True, httponly=True, samesite="Lax", max_age=3*24*60*60)
                 return response
             else:
-                return JSONResponse({"status": False, "message": "Неверный пароль."}, status_code=403)
+                return JSONResponse({"status": False, "message": "Неверный логин или пароль."}, status_code=status.HTTP_403_FORBIDDEN)
         else:
-            return JSONResponse({"status": False, "message": "Пользователь не найден."}, status_code=404)
+            return JSONResponse({"status": False, "message": "Неверный логин или пароль."}, status_code=status.HTTP_403_FORBIDDEN)
     except Exception as e:
-        return JSONResponse({"status": False, "message": f"error: {str(e)}"}, status_code=500)
+        logger.critical("Ошибка сервера: %s", e, exc_info=True)
+        return JSONResponse({"status": False, "message": "Ошибка сервера."}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -1,20 +1,15 @@
 import uvicorn
 import asyncio
-from functions import SystemUtils, Setup
-from server import client, logging
+from server import logger
+from server.core.config import settings
 
 async def main():
     try:
-        SystemUtils.clear()
-        await Setup.root_user()
-        config = uvicorn.Config("server:app", port=5005, host="0.0.0.0")
+        config = uvicorn.Config("server:app", port=int(settings.SERVER_PORT), host="0.0.0.0")
         server = uvicorn.Server(config)
         await server.serve()
     except Exception as e:
-        logging.critical(f"error: {e}")
-    finally:
-        client.close()
-        logging.info("Connection to database closed.")
+        logger.critical("Ошибка при запуске: %s", e)
 
 if __name__ == "__main__":
     asyncio.run(main())

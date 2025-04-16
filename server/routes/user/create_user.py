@@ -1,42 +1,43 @@
-from server import app, database
+from server import app, mongo_db, mongo
 from secrets import token_urlsafe
-from functions import RandomUtils, HashUtils
-from fastapi import HTTPException
+from server.core.functions.hash import create_hash
+from server.core.functions.time import token_expiration_time
+from server.core.functions.mongodb import check_connection
+from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
-from pydantic import EmailStr
-
+from server.core.api.schemes import CreateUser
 
 @app.post("/user/create_user", tags=["users"])
-async def create_user(login: str, password: str, mail: EmailStr):
-    db = database["users"]
+async def create_user(data: CreateUser):
+    if await check_connection(mongo=mongo) == False:
+        return JSONResponse({"status": False, "message": "Нет подключения к базе данных, действие невозможно."}, status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
+    db = mongo_db["users"]
     try:
-        if await db.find_one({"login": login}):
-            return JSONResponse({"status": False, "message": "Пользователь с таким логином уже зарегистрирован."}, status_code=400)
+        existing_user = await db.find_one({"$or": [{"login": data.login}, {"mail": data.mail}]})
+        if existing_user:
+            field = "логином" if existing_user.get("login") == data.login else "почтой"
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=f"Пользователь с таким {field} уже зарегистрирован.")
+        token_expiration = token_expiration_time
+        hashed_password = create_hash(text=data.password)
+        token = token_urlsafe(96)
 
-        if await db.find_one({"mail": mail}):
-            return JSONResponse({"status": False, "message": "Пользователь с такой почтой уже зарегистрирован."}, status_code=400)
-
-        hashed_password = await HashUtils.create_hash(text=password)
-        tokens = {await RandomUtils.generate_random_word(15): token_urlsafe(64) for _ in range(5)}
-
-        await db.insert_one({
-            "login": login,
-            "mail": mail,
+        user_data = {
+            "login": data.login,
+            "mail": data.mail,
             "password": hashed_password,
-            "tokens": tokens,
+            "token": token,
+            "token_expiration": token_expiration,
             "permissions": {
                 "user": True,
                 "administrator": False,
-                "Developer": False
+                "developer": False
             },
-            "auth_type": "password"
-        })
+        }
 
-        response = JSONResponse({"status": True, "message": "Успешная регистрация."}, status_code=200)
-        response.set_cookie("login", login, secure=True, httponly=True)
-        for key, value in tokens.items():
-            response.set_cookie(key, value, secure=True, httponly=True)
-        response = await RandomUtils.create_random(response=response)
+        await db.insert_one(user_data)
+        response = JSONResponse({"status": True, "message": "Успешная регистрация."},status_code=status.HTTP_201_CREATED)
+        response.set_cookie(key="token",value=token,secure=True,httponly=True,samesite='Lax')
         return response
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ошибка сервера: {e}")
+        raise HTTPException(detail=f"Ошибка сервера: {str(e)}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

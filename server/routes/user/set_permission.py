@@ -1,25 +1,26 @@
-from server import app, database
-from functions import DatabaseOperations
-
-from fastapi import Request
+from server import app, mongo_db, mongo
+from server.core.functions.mongodb import check_permissions, check_connection
+from server.core.api.schemes import SetPermissions
 from fastapi.responses import JSONResponse
+from fastapi import Request, status
 
 @app.post("/user/set_permissions", tags=["users"])
-async def set_permissions(request: Request, permission: str, permission_status: bool, login: str):
-    
-    has_permission = await DatabaseOperations.check_permissions(request=request, permission="administrator")
+async def set_permissions(data: SetPermissions, request: Request):    
+    if await check_connection(mongo=mongo) == False:
+        return JSONResponse({"status": False, "message": "Нет подключения к базе данных, действие невозможно."}, status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
+    has_permission = await check_permissions(request=request, permission="user_edit_permission", database=mongo_db)
     
     if has_permission:
         try:
-            result = await database["users"].find_one_and_update(
-                {"login": login},
-                {"$set": {f"permissions.{permission}": permission_status}}
+            result = await mongo_db["users"].find_one_and_update(
+                {"login": data.login},
+                {"$set": {f"permissions.{data.permission}": data.permission_status}}
             )
             if result:
-                return JSONResponse({"status": True, "message": "Permissions updated successfully"}, status_code=200)
+                return JSONResponse({"status": True, "message": "Разрешение успешно изменено."}, status_code=status.HTTP_200_OK)
             else:
-                return JSONResponse({"status": False, "message": "User not found"}, status_code=404)
+                return JSONResponse({"status": False, "message": "Пользователь не найден"}, status_code=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return JSONResponse({"status": False, "message": f"error: {e}"}, status_code=500)
+            return JSONResponse({"status": False, "message": f"Ошибка: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
-        return JSONResponse({"status": False, "message": "Insufficient permissions"}, status_code=400)
+        return JSONResponse({"status": False, "message": "Недостаточно прав."}, status_code=status.HTTP_400_BAD_REQUEST)
