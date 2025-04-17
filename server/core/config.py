@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str] = ["*"]
     SERVER_PORT: int = 5005
     PROJECT_NAME: str = "Automatic Spot Fire Extinguishing System"
-    VERSION: str = "DEV 11.0.0 | Build 17.04.2025"
+    VERSION: str = "DEV 11.1.0 | Build 17.04.2025"
     ROOTUSER_PASSWORD: Optional[str] ="root"
     
     class Config:

@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field, EmailStr
-from fastapi import UploadFile, File, Query
 
 class DelUser(BaseModel):
     login: str = Field(min_length=4, max_length=16)
