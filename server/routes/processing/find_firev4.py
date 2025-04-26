@@ -54,8 +54,8 @@ def draw_annotations(image: np.ndarray, results) -> tuple:
 
     return image, coordinates
 
-@app.post("/processing/v4/mark_fire", tags=["processing"])
-async def mark_firev4(file: UploadFile = File(...),return_coordinates: bool = Query(default=False)):
+@app.post("/processing/v4/mark_fire/image", tags=["processing"])
+async def mark_firev4_image(file: UploadFile = File(...), return_coordinates: bool = Query(default=False)):
     if not file.content_type.startswith('image/'):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Неверный формат файла")
 

@@ -53,11 +53,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         else:
             progress.update(task, advance=1, description="Пропуск настройки root‑пользователя")
 
-    app.state.mongodb_conn = mongodb_conn
-    app.state.redis_conn = redis_conn
-    app.state.mysql_conn = mysql_conn
-
-    from .routes.processing import find_firev4
+    from .routes.processing import find_firev4, find_firev4_video
     from .routes.user import auth_user, check_auth, create_user, leave_user, set_permission, user_delete
 
     yield
@@ -68,9 +64,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         await engine.dispose()
     if redisdb:
         await redisdb.close()
-
-
-
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
